@@ -12,9 +12,7 @@ import org.cddcore.engine.builder.AnyConclusion
 object Report {
   def apply(title: Option[String] = None, description: Option[String] = None, nodes: List[Reportable] = List()) =
     new SimpleReport(title, description, nodes)
-
-  def html(report: Report, engine: Function3[RenderContext, List[Reportable], StartChildEndType, String], renderContext: RenderContext): String =
-    Lists.traversableToStartChildEnd(report.reportPaths).foldLeft("") { case (html, (path, cse)) => html + engine(renderContext, path, cse) }
+  def html(report: Report, engine: Function3[RenderContext, List[Reportable], StartChildEndType, String], renderContext: RenderContext): String = ""
 
 }
 
@@ -46,24 +44,17 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
   val iconUrl = Strings.url(rootUrl, title, "index.html")
   val renderContext = RenderContext(urlMap, date, iconUrl)
 
-  def makeReports =
-    Exceptions({
-      val t = rootReport.reportPaths
-      reportWriter.print(iconUrl, None, Report.html(rootReport, HtmlRenderer.engineReportSingleItemRenderer, renderContext))
 
-      for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
-        val r = path.head
-        val url = urlMap(r)
-        val report: Report = ???
-        val renderer = HtmlRenderer.engineReportSingleItemRenderer
-        val actualPathToConclusion = pathToConclusion(path)
-        val newRenderContext = renderContext.copy(pathToConclusion = actualPathToConclusion)
-        val html = Report.html(report, renderer, newRenderContext)
-        reportWriter.print(url, Some(r), html)
-      }
-    }, (e) => { System.err.println("Failed in make report"); e.printStackTrace; if (e.getCause != null) { System.err.println("Cause"); e.getCause().printStackTrace; } })
+    for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
+      val r = path.head
+      val url = urlMap(r)
+      val report: Report = ???
+      val renderer = HtmlRenderer.engineReportSingleItemRenderer
+      val newRenderContext = renderContext.copy(pathToConclusion = List())
+      val html = Report.html(report, renderer, newRenderContext)
+      reportWriter.print(url, Some(r), html)
+    }
 
-  def pathToConclusion[Params, R](path: List[Reportable]): List[Reportable] = List()
 }
 
 
