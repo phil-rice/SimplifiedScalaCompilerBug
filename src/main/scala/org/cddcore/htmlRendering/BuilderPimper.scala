@@ -40,22 +40,5 @@ class BuilderPimper(builder: Builder3[RenderContext, List[Reportable], StartChil
     matchOn { case (rc: RenderContext, (r: Report) :: _, End) => rc.reportDetails.reportEnd }
   
 
-  def renderTraceItems = builder.useCase("A trace item ").
-    scenario(foldingTraceReport, actualFoldingTI, Start).
-    expected(s"\n<div class='traceItem'><div class='traceItemEngine'><table class='traceItemTable'><tr><td class='engineTitle'>Engine</td><td class='engineValue'>${titleAndIcon(foldingTraceReport, foldingED)}</td></tr><tr><td class='title'>Parameter</td><td class='value'>1</td></tr><tr><td class='title'>Result</td><td class='value'>Right(List(0, 2))</td></tr>" +
-      "\n</table>\n").
-    matchOn {
-      case (rc, (ti @ TraceItem(engine: Engine, params, result, _, _, _, _)) :: _, Start) =>
-        s"\n<div class='traceItem'><div class='traceItemEngine'>" +
-          s"<table class='traceItemTable'>" +
-          s"<tr><td class='engineTitle'>Engine</td><td class='engineValue'>${titleAndIcon(rc, EngineTools.toEngineTools(engine).asRequirement)}</td></tr>" +
-          s"<tr><td class='title'>Parameter</td><td class='value'>${rc.cdp(params)}</td></tr>" +
-          s"<tr><td class='title'>Result</td><td class='value'>${rc.cdp(result)}</td></tr>" +
-          "\n</table>\n"
-    }.
-
-    scenario(foldingTraceReport, actualFoldingTI, End).
-    expected("\n</div><!-- traceItemEngine --></div><!--traceItem -->\n").
-    matchOnPrim({ case (rc, (ti: AnyTraceItem) :: _, End) => "\n</div><!-- traceItemEngine --></div><!--traceItem -->\n" }, "is trace item / End", "close off traceItemEngine and traceItem divs")
-
+ 
 }

@@ -70,21 +70,7 @@ object SampleContexts {
     scenario(2).expected(4).
     build.asInstanceOf[FoldingEngine1[Int, Int, List[Int]]]
 
-  val foldingAsFE = folding.asInstanceOf[FoldingEngine[_, _, _]]
-  val foldingED = folding.asRequirement.asInstanceOf[FoldingEngineDescription[Int,  Int, List[Int]]]
-  val foldingEngineReport: Report = ???
-  val ce0ED = foldingED.all(classOf[EngineDescription[_, _]])(0);
-  val ce1ED = foldingED.all(classOf[EngineDescription[_, _]])(1);
-  val ce0s0 = foldingED.scenarios(0)
-  val ce1s1 = foldingED.scenarios(1)
-  val ce1s2 = foldingED.scenarios(2)
-  val ce0Tree = foldingAsFE.engines(0).tree
-  val ce1Tree = foldingAsFE.engines(1).tree
-  val concCe0 = ce0Tree.root
-  val decisionCe1 = ce1Tree.root.asInstanceOf[AnyDecision]
-  val concYesCe1 = decisionCe1.toYes
-  val concNoCe1 = decisionCe1.toNo
-
+ 
   type TI = TraceItem[Any, Any, Any, Any]
   implicit def toTraceItem(x: (Any, Any, Any, List[TI])) =
     x match { case (engine, params, result, nodes) => new TraceItem[Any, Any, Any, Any](engine, params, Right(result), None, nodes, 0) }

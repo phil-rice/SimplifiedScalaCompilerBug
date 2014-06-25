@@ -2,7 +2,7 @@ The following is what happens when I "sbt compile" this project
 
 This looks a little to me like https://issues.scala-lang.org/browse/SI-8364. As you can see from the Build.sbt, I am using scala 2.11.1, and the bug is marked as being fixed in 2.11.1-rc3
 
-I've extracted this project out of a much bigger one, but I'm struggling simplifying it further.
+I've extracted this project out of a much bigger one, but I'm struggling simplifying it further. It no longer makes much sense (I've cut and paste stuff to reduce the code base)
 
 If I removed the class ReportOrchestrator from the file 'Report.scala', then the compiler crash goes away.
 

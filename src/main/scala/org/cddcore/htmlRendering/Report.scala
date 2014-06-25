@@ -47,6 +47,7 @@ trait Report extends TitledReportable {
   def reportPaths: List[List[Reportable]]
   def urlMapPaths: List[List[Reportable]] = reportPaths
 }
+
 case class SimpleReport(
   val title: Option[String],
   val description: Option[String],
