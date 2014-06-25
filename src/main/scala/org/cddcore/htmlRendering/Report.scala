@@ -13,32 +13,9 @@ object Report {
   def apply(title: Option[String] = None, description: Option[String] = None, nodes: List[Reportable] = List()) =
     new SimpleReport(title, description, nodes)
 
-  def htmlAndRenderedContext(report: Report, engine: Function3[RenderContext, List[Reportable], StartChildEndType, String]): (String, RenderContext) = {
-    val urlMap = UrlMap() ++ report.urlMapPaths
-    val iconUrl = Strings.url(urlMap.rootUrl, report.titleString, "")
-    val renderContext = RenderContext(urlMap, new Date(), iconUrl)
-    (html(report, engine, renderContext), renderContext)
-  }
-  def html(report: Report, engine: Function3[RenderContext, List[Reportable], StartChildEndType, String]): String =
-    htmlAndRenderedContext(report, engine)._1
-
   def html(report: Report, engine: Function3[RenderContext, List[Reportable], StartChildEndType, String], renderContext: RenderContext): String =
     Lists.traversableToStartChildEnd(report.reportPaths).foldLeft("") { case (html, (path, cse)) => html + engine(renderContext, path, cse) }
 
-  def htmlAndRenderedContext(title: Option[String], traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None)(implicit ldp: CddDisplayProcessor): (String, RenderContext) = {
-    val report: Report = ???
-    val urlMap = UrlMap() ++ report.urlMapPaths
-    val iconUrl = Strings.url(urlMap.rootUrl, report.titleString, "")
-    val renderContext = RenderContext(urlMap, new Date(), iconUrl)
-    (html(report, HtmlRenderer.engineReportSingleItemRenderer , renderContext), renderContext)
-  }
-
-  def htmlFromTrace(title: String, traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None)(implicit ldp: CddDisplayProcessor): String =
-    htmlAndRenderedContext(Some(title), traceItems, description)._1
-
-  def rendererFor(report: Report) = HtmlRenderer.engineReportSingleItemRenderer
-
-  def htmlAndRenderedContext(report: Report): (String, RenderContext) = htmlAndRenderedContext(report, rendererFor(report))
 }
 
 trait Report extends TitledReportable {
@@ -54,7 +31,6 @@ case class SimpleReport(
   val nodes: List[Reportable],
   val textOrder: Int = Reportable.nextTextOrder) extends Report with NestedHolder[Reportable] {
   val reportPaths = pathsIncludingSelf.toList
-
   override def toString = s"Report(${title.getOrElse("None")}, nodes=(${nodes.mkString(",")}))"
 }
 trait ReportWriter {
@@ -79,7 +55,7 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
         val r = path.head
         val url = urlMap(r)
         val report: Report = ???
-        val renderer = HtmlRenderer.rendererFor(r)
+        val renderer = HtmlRenderer.engineReportSingleItemRenderer
         val actualPathToConclusion = pathToConclusion(path)
         val newRenderContext = renderContext.copy(pathToConclusion = actualPathToConclusion)
         val html = Report.html(report, renderer, newRenderContext)
