@@ -30,15 +30,6 @@ class BuilderPimper(builder: Builder3[RenderContext, List[Reportable], StartChil
     builder.scenario(rc, path, sce)
   }
   
-  def renderReport = builder.useCase("Reports have a huge template at the start, and end. The report title and date are substituted in").
-    scenario(engineReport, engineReport, Start).
-    expected(ReportDetails().reportStart("engineReportTitle", iconUrl, testDate)).
-    matchOn { case (RenderContext(_, date, iconUrl, pathToConclusion, reportDetails, _), (r: Report) :: _, Start) => reportDetails.reportStart(r.titleString, iconUrl, date) }.
-
-    scenario(engineReport, engineReport, End).
-    expected(ReportDetails().reportEnd).
-    matchOn { case (rc: RenderContext, (r: Report) :: _, End) => rc.reportDetails.reportEnd }
-  
-
+ 
  
 }

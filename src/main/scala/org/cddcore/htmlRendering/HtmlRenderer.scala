@@ -34,12 +34,7 @@ object HtmlRenderer extends DecisionTreeBuilderForTests2[RenderContext, StartChi
   val titleAndIcon = Engine[RenderContext, Reportable, String]().title("titleAndIcon").description("Finds a suitable titleAndIcon for a reportable. Includes links to go to item, and the id from the urlmap").
     build
 
-  val conclusionPath = Engine[RenderContext, List[Reportable], List[Reportable]].title("conclusionPath").
-    build
 
-  val engineAndDocumentsSingleItemRenderer = Engine[RenderContext, List[Reportable], StartChildEndType, String]().
-    title("Engine and Documents Single Item Renderer").
-    build
 
   val engineReportSingleItemRenderer = Engine[RenderContext, List[Reportable], StartChildEndType, String]().title("Single Engine report").
     build

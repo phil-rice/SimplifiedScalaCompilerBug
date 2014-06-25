@@ -30,13 +30,13 @@ object Report {
     val urlMap = UrlMap() ++ report.urlMapPaths
     val iconUrl = Strings.url(urlMap.rootUrl, report.titleString, "")
     val renderContext = RenderContext(urlMap, new Date(), iconUrl)
-    (html(report, HtmlRenderer.engineAndDocumentsSingleItemRenderer, renderContext), renderContext)
+    (html(report, HtmlRenderer.engineReportSingleItemRenderer , renderContext), renderContext)
   }
 
   def htmlFromTrace(title: String, traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None)(implicit ldp: CddDisplayProcessor): String =
     htmlAndRenderedContext(Some(title), traceItems, description)._1
 
-  def rendererFor(report: Report) = HtmlRenderer.engineAndDocumentsSingleItemRenderer
+  def rendererFor(report: Report) = HtmlRenderer.engineReportSingleItemRenderer
 
   def htmlAndRenderedContext(report: Report): (String, RenderContext) = htmlAndRenderedContext(report, rendererFor(report))
 }
@@ -73,7 +73,7 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
   def makeReports =
     Exceptions({
       val t = rootReport.reportPaths
-      reportWriter.print(iconUrl, None, Report.html(rootReport, HtmlRenderer.engineAndDocumentsSingleItemRenderer, renderContext))
+      reportWriter.print(iconUrl, None, Report.html(rootReport, HtmlRenderer.engineReportSingleItemRenderer, renderContext))
 
       for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
         val r = path.head
