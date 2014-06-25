@@ -43,9 +43,6 @@ object SampleContexts {
 
   val eBlankTitleDoc1 = Engine[Int, Int]().title("EBlankTitle").reference("", doc1).build
   val eBlankTitleDoc1ED = eBlankTitleDoc1.asRequirement.asInstanceOf[EngineDescription[_, _]]
-  val eBlankTitleDoc1_DocAndEngineReport = Report.documentAndEngineReport(Some("documentAndEngineReportTitle"), testDate, List(eBlankTitleDoc1))
-  val eBlankTitleDoc1_documentHolder = eBlankTitleDoc1_DocAndEngineReport.documentHolder
-  val eBlankTitleDoc1_engineHolder = eBlankTitleDoc1_DocAndEngineReport.engineHolder
 
   val eWithUsecasesAndScenarios = Engine[Int, Int].title("eWithUsecasesAndScenarios").
     useCase("useCase0", "useCase0Description").scenario(0).expected(0).
@@ -75,7 +72,6 @@ object SampleContexts {
 
   val foldingAsFE = folding.asInstanceOf[FoldingEngine[_, _, _]]
   val foldingED = folding.asRequirement.asInstanceOf[FoldingEngineDescription[Int,  Int, List[Int]]]
-  val foldingEngineAndDocumentReport = Report.documentAndEngineReport(None, testDate, List(folding))
   val foldingEngineReport = Report.engineReport(Some("engineReportTitle"), testDate, folding)
   val ce0ED = foldingED.all(classOf[EngineDescription[_, _]])(0);
   val ce1ED = foldingED.all(classOf[EngineDescription[_, _]])(1);

@@ -12,8 +12,6 @@ import org.cddcore.engine.builder.AnyConclusion
 object Report {
   def apply(title: Option[String] = None, description: Option[String] = None, nodes: List[Reportable] = List()) =
     new SimpleReport(title, description, nodes)
-  def documentAndEngineReport(title: Option[String], date: Date, engines: Traversable[Engine], description: Option[String] = None) =
-    new DocumentAndEngineReport(title, engines, description)
   def engineReport(title: Option[String], date: Date, engine: Engine, description: Option[String] = None) =
     new FocusedReport(title, List(engine.asRequirement), description)
   def focusedReport(title: Option[String], pathWithoutReport: List[Reportable], description: Option[String] = None) =
@@ -46,7 +44,6 @@ object Report {
 
   def rendererFor(report: Report) =
     report match {
-      case r: DocumentAndEngineReport => HtmlRenderer.engineAndDocumentsSingleItemRenderer
       case r: TraceReport => HtmlRenderer.traceReportSingleItemRenderer
       case r: FocusedReport => r.focusPath.head match {
         case e: EngineRequirement[_, _] => HtmlRenderer.engineReportSingleItemRenderer
@@ -69,29 +66,11 @@ trait ReportWriter {
   def print(url: String, main: Option[Reportable], html: String)
 }
 
-class FileReportWriter extends ReportWriter {
-  def print(url: String, main: Option[Reportable], html: String) {
-    val prefix = "file:/"
-    if (url.startsWith(prefix)) {
-      val path = url.substring(prefix.length())
-      Files.printToFile(new File(path))((pw) =>
-        pw.print(html))
-    } else throw new IllegalArgumentException("Url is " + url)
-  }
-}
 
-class MemoryReportWriter extends ReportWriter {
-  var map: Map[String, (Option[Reportable], String)] = Map()
-  def print(url: String, main: Option[Reportable], html: String) {
-    if (map.contains(url)) throw new IllegalArgumentException(url + " is already in map")
-    map = map + (url -> (main, html))
-  }
-
-}
-class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], date: Date = new Date, reportWriter: ReportWriter = new FileReportWriter) {
+class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], date: Date = new Date, reportWriter: ReportWriter = null) {
   import EngineTools._
   import Strings._
-  val rootReport = Report.documentAndEngineReport(Some(title), date, engines)
+  val rootReport = Report.engineReport(Some(title), date, engines.head)
   val engineReports = engines.foldLeft(List[Report]())((list, e) => Report.engineReport(Some("title"), date, e) :: list).reverse
   val urlMap = UrlMap(rootUrl) ++ rootReport.urlMapPaths
   val iconUrl = Strings.url(rootUrl, title, "index.html")
@@ -143,35 +122,6 @@ case class SimpleReport(
   override def toString = s"Report(${title.getOrElse("None")}, nodes=(${nodes.mkString(",")}))"
 }
 
-case class DocumentAndEngineReport(title: Option[String],
-  val engines: Traversable[Engine],
-  val description: Option[String] = None,
-  val textOrder: Int = Reportable.nextTextOrder) extends Report with NestedHolder[Reportable] {
-  import EngineTools._
-  import ReportableHelper._
-
-  val documents = engines.flatMap(_.asRequirement.documents).toList.distinct
-  val sortedEngines = engines.toList.sortBy(_.textOrder)
-  val documentHolder = DocumentHolder(documents)
-  val engineHolder = EngineHolder(sortedEngines)
-  val nodes = List(documentHolder, engineHolder)
-  private val thisAsPath: List[Reportable] = List(this)
-  private val thisAndEngineHolderAsPath: List[Reportable] = List(engineHolder, this)
-  private val shortenginePaths: List[List[Reportable]] = engines.flatMap(_.asRequirement match {
-    case e: EngineDescription[_, _] => List(e :: thisAndEngineHolderAsPath)
-    case f: FoldingEngineDescription[_, _, __] => {
-      val head = (f :: thisAndEngineHolderAsPath)
-      val tail = f.nodes.map(_ :: f :: thisAndEngineHolderAsPath);
-      val result = head :: tail
-      result
-    }
-  }).toList
-  private val fullEnginePaths: List[List[Reportable]] = engines.flatMap(_.asRequirement.pathsIncludingTreeAndEngine(thisAsPath)).toList
-  override val urlMapPaths = List(thisAsPath) ++ documentHolder.pathsFrom(thisAsPath) ++ fullEnginePaths
-  val reportPaths = List(thisAsPath) ++ documentHolder.pathsIncludingSelf(thisAsPath) ++ List(thisAndEngineHolderAsPath) ++ shortenginePaths
-  //    reportPaths ++ engines.map(_.asRequirement).flatMap((ed) => ed.pathsIncludingTreeAndEngine(engineHolder :: ed :: this :: Nil))
-
-}
 
 case class FocusedReport(title: Option[String],
   val focusPath: List[Reportable],
