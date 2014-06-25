@@ -35,11 +35,11 @@ object SampleContexts {
 
   val eBlank = Engine[Int, Int]().build
   val eBlankED = eBlank.asRequirement
-  val eBlankReport = Report.engineReport(Some("engineReportTitle"), testDate, eBlank)
+  val eBlankReport : Report = ???
 
   val eBlankTitle = Engine[Int, Int]().title("EBlankTitle").build
   val eBlankTitleED = eBlankTitle.asRequirement
-  val eBlankTitleReport = Report.engineReport(Some("engineReportTitle"), testDate, eBlankTitle)
+  val eBlankTitleReport : Report = ???
 
   val eBlankTitleDoc1 = Engine[Int, Int]().title("EBlankTitle").reference("", doc1).build
   val eBlankTitleDoc1ED = eBlankTitleDoc1.asRequirement.asInstanceOf[EngineDescription[_, _]]
@@ -50,7 +50,7 @@ object SampleContexts {
     scenario(2).expected(4).
     build
   val eWithUsecasesAndScenariosEd = eWithUsecasesAndScenarios.asRequirement
-  val engineReport = Report.engineReport(Some("engineReportTitle"), testDate, eWithUsecasesAndScenarios)
+  val engineReport: Report = ???
   import ReportableHelper._
 
   val uc0 = eWithUsecasesAndScenariosEd.useCases(0)
@@ -72,7 +72,7 @@ object SampleContexts {
 
   val foldingAsFE = folding.asInstanceOf[FoldingEngine[_, _, _]]
   val foldingED = folding.asRequirement.asInstanceOf[FoldingEngineDescription[Int,  Int, List[Int]]]
-  val foldingEngineReport = Report.engineReport(Some("engineReportTitle"), testDate, folding)
+  val foldingEngineReport: Report = ???
   val ce0ED = foldingED.all(classOf[EngineDescription[_, _]])(0);
   val ce1ED = foldingED.all(classOf[EngineDescription[_, _]])(1);
   val ce0s0 = foldingED.scenarios(0)
@@ -89,7 +89,7 @@ object SampleContexts {
   implicit def toTraceItem(x: (Any, Any, Any, List[TI])) =
     x match { case (engine, params, result, nodes) => new TraceItem[Any, Any, Any, Any](engine, params, Right(result), None, nodes, 0) }
   val (result, trace) = Engine.trace(folding(1))
-  val foldingTraceReport = Report.traceReport(Some("some title"), trace)
+  val foldingTraceReport: Report = ???
  
   val ce0TI: TI = (folding.engines(0), 1, 0, List())
   val ce1TI: TI = (folding.engines(1), 1, 2, List())

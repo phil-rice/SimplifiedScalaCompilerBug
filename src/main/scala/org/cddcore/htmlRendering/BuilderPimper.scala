@@ -13,13 +13,7 @@ import scala.language.implicitConversions
 
 object BuilderPimper {
   implicit def toPimper(builder: Builder3[RenderContext, List[Reportable], StartChildEndType, String, String]): BuilderPimper = new BuilderPimper(builder: Builder3[RenderContext, List[Reportable], StartChildEndType, String, String])
-  def table(clazz: String, rows: Tuple2[String, _]*) =
-    s"<table class='$clazz'>${
-      rows.map {
-        case (c, (n, v)) => s"<tr class='$c'><td class='title'>$n</td><td class='value'>$v</td></tr>"
-        case (n, v) => s"<tr><td class='title'>$n</td><td class='value'>$v</td></tr>"
-      }.mkString("")
-    }</table>"
+ 
 }
 
 class BuilderPimper(builder: Builder3[RenderContext, List[Reportable], StartChildEndType, String, String]) {

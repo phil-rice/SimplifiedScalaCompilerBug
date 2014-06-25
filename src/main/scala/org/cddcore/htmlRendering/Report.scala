@@ -12,12 +12,6 @@ import org.cddcore.engine.builder.AnyConclusion
 object Report {
   def apply(title: Option[String] = None, description: Option[String] = None, nodes: List[Reportable] = List()) =
     new SimpleReport(title, description, nodes)
-  def engineReport(title: Option[String], date: Date, engine: Engine, description: Option[String] = None) =
-    new FocusedReport(title, List(engine.asRequirement), description)
-  def focusedReport(title: Option[String], pathWithoutReport: List[Reportable], description: Option[String] = None) =
-    new FocusedReport(title, pathWithoutReport, description)
-  def traceReport(title: Option[String], traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None) =
-    new TraceReport(title, traceItems, description)
 
   def htmlAndRenderedContext(report: Report, engine: Function3[RenderContext, List[Reportable], StartChildEndType, String]): (String, RenderContext) = {
     val urlMap = UrlMap() ++ report.urlMapPaths
@@ -32,7 +26,7 @@ object Report {
     Lists.traversableToStartChildEnd(report.reportPaths).foldLeft("") { case (html, (path, cse)) => html + engine(renderContext, path, cse) }
 
   def htmlAndRenderedContext(title: Option[String], traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None)(implicit ldp: CddDisplayProcessor): (String, RenderContext) = {
-    val report = new TraceReport(title, traceItems, description)
+    val report: Report = ???
     val urlMap = UrlMap() ++ report.urlMapPaths
     val iconUrl = Strings.url(urlMap.rootUrl, report.titleString, "")
     val renderContext = RenderContext(urlMap, new Date(), iconUrl)
@@ -42,15 +36,7 @@ object Report {
   def htmlFromTrace(title: String, traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None)(implicit ldp: CddDisplayProcessor): String =
     htmlAndRenderedContext(Some(title), traceItems, description)._1
 
-  def rendererFor(report: Report) =
-    report match {
-      case r: TraceReport => HtmlRenderer.traceReportSingleItemRenderer
-      case r: FocusedReport => r.focusPath.head match {
-        case e: EngineRequirement[_, _] => HtmlRenderer.engineReportSingleItemRenderer
-        case uc: UseCase[_, _] => HtmlRenderer.useCaseOrScenarioReportRenderer
-        case s: Scenario[_, _] => HtmlRenderer.useCaseOrScenarioReportRenderer
-      }
-    }
+  def rendererFor(report: Report) = HtmlRenderer.traceReportSingleItemRenderer
 
   def htmlAndRenderedContext(report: Report): (String, RenderContext) = htmlAndRenderedContext(report, rendererFor(report))
 }
@@ -70,8 +56,8 @@ trait ReportWriter {
 class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], date: Date = new Date, reportWriter: ReportWriter = null) {
   import EngineTools._
   import Strings._
-  val rootReport = Report.engineReport(Some(title), date, engines.head)
-  val engineReports = engines.foldLeft(List[Report]())((list, e) => Report.engineReport(Some("title"), date, e) :: list).reverse
+  val rootReport : Report = ???
+  val engineReports = engines.foldLeft(List[Report]())((list, e) => Report() :: list).reverse
   val urlMap = UrlMap(rootUrl) ++ rootReport.urlMapPaths
   val iconUrl = Strings.url(rootUrl, title, "index.html")
   val renderContext = RenderContext(urlMap, date, iconUrl)
@@ -84,7 +70,7 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
       for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
         val r = path.head
         val url = urlMap(r)
-        val report = Report.focusedReport(Some("title"), path)
+        val report : Report = ???
         val renderer = HtmlRenderer.rendererFor(r)
         val actualPathToConclusion = pathToConclusion(path)
         val newRenderContext = renderContext.copy(pathToConclusion = actualPathToConclusion)
@@ -122,70 +108,3 @@ case class SimpleReport(
   override def toString = s"Report(${title.getOrElse("None")}, nodes=(${nodes.mkString(",")}))"
 }
 
-
-case class FocusedReport(title: Option[String],
-  val focusPath: List[Reportable],
-  val description: Option[String] = None,
-  val textOrder: Int = Reportable.nextTextOrder) extends Report {
-  import EngineTools._
-  import ReportableHelper._
-
-  private val pathToFocus = focusPath :+ this
-  private val pathsToFocus = Lists.decreasingList(pathToFocus).reverse
-  val addDecisionTree = (path: List[Reportable]) => path match {
-    case path @ (ed: EngineDescription[_, _]) :: tail => ed.tree.get.treePathsWithElseClause(path)
-    case _ => List()
-  }
-  def childrenPaths(path: List[Reportable]): List[List[Reportable]] = path match {
-    case (f: FoldingEngineDescription[_, _, _]) :: tail => f.nodes.flatMap {
-      case ed: EngineDescription[_, _] => ed.pathsIncludingTreeAndEngine(path)
-    }
-    case (h: NestedHolder[Reportable]) :: tail => h.pathsFrom(path).toList
-    case _ => List()
-  }
-
-  val reportPaths = pathsToFocus ::: childrenPaths(pathToFocus) ::: pathsToFocus.flatMap(addDecisionTree)
-
-}
-case class TraceReport(title: Option[String],
-  val traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]],
-  val description: Option[String] = None,
-  val textOrder: Int = Reportable.nextTextOrder) extends Report {
-  import EngineTools._
-  import ReportableHelper._
-  import ReportableHelper._
-
-  val reportPaths = {
-    val thisPath = List(this)
-    val traceItemPaths = traceItems.flatMap((traceItem) => traceItem.pathsIncludingSelf(thisPath))
-    val result = traceItemPaths.flatMap {
-      case path @ (ti: TraceItem[_, _, _, _]) :: tail =>
-        path :: ((ti.main: @unchecked) match {
-          case f: FoldingEngine[_, _, _] => List()
-          case e: EngineFromTests[_, _] => e.tree.treePathsWithElseClause(path)
-        })
-    }
-    thisPath :: result
-  }
-  def edsInTraceItem[Main, Params, Result, Evidence](traceItem: TraceItem[Main, Params, Result, Evidence]): List[EngineRequirement[_, _]] = {
-    val head = traceItem.main match {
-      case e: FoldingEngine[_, _, _] => e.asRequirement
-      case e: EngineFromTests[_, _] => e.asRequirement
-    }
-    val tail = traceItem.nodes.flatMap(edsInTraceItem(_)).toList
-    head :: tail
-  }
-
-  val eds = traceItems.flatMap(edsInTraceItem(_)).toList.distinct
-  val feds: List[NestedHolder[Reportable]] = eds.collect { case fed: FoldingEngineDescription[_, _, _] => fed.asInstanceOf[NestedHolder[Reportable]] }
-  val childEngines = feds.flatMap((fed) => fed.nodes.toSet)
-  val edsWithoutChildEngines = eds.filter(!childEngines.contains(_))
-
-  override val urlMapPaths = edsWithoutChildEngines.flatMap(_.pathsIncludingTreeAndEngine(List())) ::: traceItems.flatMap((traceItem) => traceItem.pathsIncludingSelf)
-}
-
-/** A reportable with a wrapper is used in the reports when making a projection of an original report. This allows the correct urls to be determined */
-trait ReportableWrapper extends Reportable {
-  def delegate: Option[Reportable]
-
-}
