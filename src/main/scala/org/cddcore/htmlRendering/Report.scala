@@ -63,23 +63,7 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
       }
     }, (e) => { System.err.println("Failed in make report"); e.printStackTrace; if (e.getCause != null) { System.err.println("Cause"); e.getCause().printStackTrace; } })
 
-  def pathToConclusion[Params, R](path: List[Reportable]): List[Reportable] = {
-    def engineFromTestsFor(ed: EngineDescription[Params, R]) = {
-      def fromEngine(e: Engine): List[EngineFromTests[Params, R]] = e match {
-        case e: EngineFromTests[Params, R] if (e.asRequirement.eq(ed)) => List(e)
-        case f: FoldingEngine[Params, R, _] => f.engines.collect { case e: EngineFromTests[Params, R] if (e.asRequirement.eq(ed)) => e }
-        case d: DelegatedEngine[Params, R] => fromEngine(d.delegate)
-        case _ => List()
-      }
-      engines.flatMap(fromEngine(_)).head
-    }
-    def pathFrom(e: EngineFromTests[Params, R], params: Params) = e.evaluator.findPathToConclusionWithParams(e.tree, params)
-
-    path.head match {
-      case s: Scenario[Params, R] => path.collect { case ed: EngineDescription[Params, R] => pathFrom(engineFromTestsFor(ed), s.params) }.head
-      case _ => List()
-    }
-  }
+  def pathToConclusion[Params, R](path: List[Reportable]): List[Reportable] = List()
 }
 
 
