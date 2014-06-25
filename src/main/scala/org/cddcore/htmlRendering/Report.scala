@@ -30,13 +30,13 @@ object Report {
     val urlMap = UrlMap() ++ report.urlMapPaths
     val iconUrl = Strings.url(urlMap.rootUrl, report.titleString, "")
     val renderContext = RenderContext(urlMap, new Date(), iconUrl)
-    (html(report, HtmlRenderer.traceReportSingleItemRenderer, renderContext), renderContext)
+    (html(report, HtmlRenderer.engineAndDocumentsSingleItemRenderer, renderContext), renderContext)
   }
 
   def htmlFromTrace(title: String, traceItems: List[TraceItem[Engine, Any, Any, AnyConclusion]], description: Option[String] = None)(implicit ldp: CddDisplayProcessor): String =
     htmlAndRenderedContext(Some(title), traceItems, description)._1
 
-  def rendererFor(report: Report) = HtmlRenderer.traceReportSingleItemRenderer
+  def rendererFor(report: Report) = HtmlRenderer.engineAndDocumentsSingleItemRenderer
 
   def htmlAndRenderedContext(report: Report): (String, RenderContext) = htmlAndRenderedContext(report, rendererFor(report))
 }
@@ -47,16 +47,23 @@ trait Report extends TitledReportable {
   def reportPaths: List[List[Reportable]]
   def urlMapPaths: List[List[Reportable]] = reportPaths
 }
+case class SimpleReport(
+  val title: Option[String],
+  val description: Option[String],
+  val nodes: List[Reportable],
+  val textOrder: Int = Reportable.nextTextOrder) extends Report with NestedHolder[Reportable] {
+  val reportPaths = pathsIncludingSelf.toList
 
+  override def toString = s"Report(${title.getOrElse("None")}, nodes=(${nodes.mkString(",")}))"
+}
 trait ReportWriter {
   def print(url: String, main: Option[Reportable], html: String)
 }
 
-
 class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], date: Date = new Date, reportWriter: ReportWriter = null) {
   import EngineTools._
   import Strings._
-  val rootReport : Report = ???
+  val rootReport: Report = ???
   val engineReports = engines.foldLeft(List[Report]())((list, e) => Report() :: list).reverse
   val urlMap = UrlMap(rootUrl) ++ rootReport.urlMapPaths
   val iconUrl = Strings.url(rootUrl, title, "index.html")
@@ -70,7 +77,7 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
       for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
         val r = path.head
         val url = urlMap(r)
-        val report : Report = ???
+        val report: Report = ???
         val renderer = HtmlRenderer.rendererFor(r)
         val actualPathToConclusion = pathToConclusion(path)
         val newRenderContext = renderContext.copy(pathToConclusion = actualPathToConclusion)
@@ -98,13 +105,5 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
   }
 }
 
-case class SimpleReport(
-  val title: Option[String],
-  val description: Option[String],
-  val nodes: List[Reportable],
-  val textOrder: Int = Reportable.nextTextOrder) extends Report with NestedHolder[Reportable] {
-  val reportPaths = pathsIncludingSelf.toList
 
-  override def toString = s"Report(${title.getOrElse("None")}, nodes=(${nodes.mkString(",")}))"
-}
 

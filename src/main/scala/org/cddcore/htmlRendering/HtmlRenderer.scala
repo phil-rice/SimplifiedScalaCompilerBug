@@ -44,11 +44,7 @@ object HtmlRenderer extends DecisionTreeBuilderForTests2[RenderContext, StartChi
   val engineReportSingleItemRenderer = Engine[RenderContext, List[Reportable], StartChildEndType, String]().title("Single Engine report").
     build
 
-  val traceReportSingleItemRenderer = Engine[RenderContext, List[Reportable], StartChildEndType, String]().title("Trace Item Report").
-    build
 
-  val useCaseOrScenarioReportRenderer = Engine[RenderContext, List[Reportable], StartChildEndType, String]().title("Single Use Case Report").
-    build
 
   val rendererFor =
     Engine[Reportable, Engine3[RenderContext, List[Reportable], StartChildEndType, String, String]]().title("Select the renderer for use for this reportable").

@@ -4,6 +4,8 @@ This looks a little to me like https://issues.scala-lang.org/browse/SI-8364. As 
 
 I've extracted this project out of a much bigger one, but I'm struggling simplifying it further.
 
+If I removed the class ReportOrchestrator from the file 'Report.scala', then the compiler crash goes away.
+
 
 
 Loading /c/Program Files (x86)/sbt/bin/sbt-launch-lib.bash
