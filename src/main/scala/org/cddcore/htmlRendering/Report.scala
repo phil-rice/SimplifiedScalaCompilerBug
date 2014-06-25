@@ -40,20 +40,18 @@ class ReportOrchestrator(rootUrl: String, title: String, engines: List[Engine], 
   import Strings._
   val rootReport: Report = ???
   val engineReports = engines.foldLeft(List[Report]())((list, e) => Report() :: list).reverse
-  val urlMap = UrlMap(rootUrl) ++ rootReport.urlMapPaths
   val iconUrl = Strings.url(rootUrl, title, "index.html")
-  val renderContext = RenderContext(urlMap, date, iconUrl)
+  val renderContext = RenderContext("", date, iconUrl)
 
-
-    for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
-      val r = path.head
-      val url = urlMap(r)
-      val report: Report = ???
-      val renderer = HtmlRenderer.engineReportSingleItemRenderer
-      val newRenderContext = renderContext.copy(pathToConclusion = List())
-      val html = Report.html(report, renderer, newRenderContext)
-      reportWriter.print(url, Some(r), html)
-    }
+  for (e <- engines; path: List[Reportable] <- e.asRequirement.pathsIncludingSelf.toList) {
+    val r = path.head
+    val url = ""
+    val report: Report = ???
+    val renderer = HtmlRenderer.engineReportSingleItemRenderer
+    val newRenderContext = renderContext.copy(pathToConclusion = List())
+    val html = Report.html(report, renderer, newRenderContext)
+    reportWriter.print(url, Some(r), html)
+  }
 
 }
 

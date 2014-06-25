@@ -22,15 +22,12 @@ trait ReportDetails {
 }
 
 
-case class RenderContext(urlMap: UrlMap, reportDate: Date, iconUrl: String, pathToConclusion: List[Reportable] = List(), reportDetails: ReportDetails = ReportDetails(), misc: Map[String,Any] = Map())(implicit cddDisplayProcessor: CddDisplayProcessor) {
+case class RenderContext(urlMap: Any, reportDate: Date, iconUrl: String, pathToConclusion: List[Reportable] = List(), reportDetails: ReportDetails = ReportDetails(), misc: Map[String,Any] = Map())(implicit cddDisplayProcessor: CddDisplayProcessor) {
   val cdp = cddDisplayProcessor
   override def toString = getClass.getSimpleName()
 }
 
 object HtmlRenderer extends DecisionTreeBuilderForTests2[RenderContext, StartChildEndType, Elem] {
-  import SampleContexts._
-  import BuilderPimper._
-
 
   val engineReportSingleItemRenderer = Engine[RenderContext, List[Reportable], StartChildEndType, String]().title("Single Engine report").
     build
