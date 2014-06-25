@@ -1,0 +1,112 @@
+The following is what happens when I "sbt compile" this project
+
+This looks a little to me like https://issues.scala-lang.org/browse/SI-8364. As you can see from the Build.sbt, I am using scala 2.11.1, and the bug is marked as being fixed in 2.11.1-rc3
+
+I've extracted this project out of a much bigger one, but I'm struggling simplifying it further.
+
+
+
+Loading /c/Program Files (x86)/sbt/bin/sbt-launch-lib.bash
+[warn] The global sbt directory is now versioned and is located at C:\Users\Phil\.sbt\0.13.
+[warn]   You are seeing this warning because there is global configuration in C:\Users\Phil\.sbt but not in C:\Users\Phil\.sbt\0.13.
+[warn]   The global sbt directory may be changed via the sbt.global.base system property.
+[info] Loading project definition from C:\Users\Phil\workspace\simplified\project
+[info] Set current project to simplified (in build file:/C:/Users/Phil/workspace/simplified/)
+[info] Updating {file:/C:/Users/Phil/workspace/simplified/}simplified...
+[info] Resolving org.scala-lang#scala-compiler;2.11.1 ...
+[info] Resolving org.scala-lang#scala-library;2.11.1 ...
+[info] Resolving org.scala-lang#scala-reflect;2.11.1 ...
+[info] Resolving org.scala-lang.modules#scala-xml_2.11;1.0.2 ...
+[info] Resolving org.scala-lang.modules#scala-parser-combinators_2.11;1.0.1 ...
+[info] Resolving jline#jline;2.11 ...
+[info] Done updating.
+[info] Compiling 7 Scala sources to C:\Users\Phil\workspace\simplified\target\scala-2.11\classes...
+[info] 'compiler-interface' not yet compiled for Scala 2.11.1. Compiling...
+[info]   Compilation completed in 11.212 s
+[warn] C:\Users\Phil\workspace\simplified\src\main\scala\org\cddcore\htmlRendering\HtmlRenderer.scala:71: non-variable type argument Any in type pattern org.cddcore.utilities.TraceItem[Any,Any,Any,Any] (the underlying of org.cddcore.htmlRendering.SampleContexts.TI) is unchecked since it is eliminated by erasure
+[warn]     matchOn { case (_, ti: TI) => "<!-- no icon -->" }.
+[warn]                            ^
+[warn] C:\Users\Phil\workspace\simplified\src\main\scala\org\cddcore\htmlRendering\Report.scala:193: non-variable type argument org.cddcore.engine.Reportable in type pattern org.cddcore.utilities.NestedHolder[org.cddcore.engine.Reportable] is unchecked since it is eliminated by erasure
+[warn]     case (h: NestedHolder[Reportable]) :: tail => h.pathsFrom(path).toList
+[warn]              ^
+[warn] C:\Users\Phil\workspace\simplified\src\main\scala\org\cddcore\htmlRendering\Report.scala:211: match may not be exhaustive.
+[warn] It would fail on the following inputs: List((x: Product with Serializable with org.cddcore.engine.Reportable forSome x not in org.cddcore.utilities.TraceItem[?,?,?,?])), List(), Nil
+[warn]     val result = traceItemPaths.flatMap {
+[warn]                                         ^
+[error] Unknown type: <error>, <error> [class scala.reflect.internal.Types$ErrorType$, class scala.reflect.internal.Types$ErrorType$] TypeRef? false
+scala.reflect.internal.FatalError: Unknown type: <error>, <error> [class scala.reflect.internal.Types$ErrorType$, class scala.reflect.internal.Types$ErrorType$] TypeRef? false
+	at scala.reflect.internal.SymbolTable.abort(SymbolTable.scala:58)
+	at scala.tools.nsc.Global.abort(Global.scala:269)
+	at scala.tools.nsc.backend.icode.TypeKinds$class.toTypeKind(TypeKinds.scala:401)
+	at scala.tools.nsc.backend.icode.ICodes.toTypeKind(ICodes.scala:19)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.addMethodParams(GenICode.scala:1602)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:119)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:71)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:148)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:98)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:71)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:89)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.gen(GenICode.scala:67)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.apply(GenICode.scala:63)
+	at scala.tools.nsc.Global$GlobalPhase.applyPhase(Global.scala:430)
+	at scala.tools.nsc.Global$GlobalPhase$$anonfun$run$1.apply(Global.scala:397)
+	at scala.tools.nsc.Global$GlobalPhase$$anonfun$run$1.apply(Global.scala:397)
+	at scala.collection.Iterator$class.foreach(Iterator.scala:743)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1174)
+	at scala.tools.nsc.Global$GlobalPhase.run(Global.scala:397)
+	at scala.tools.nsc.backend.icode.GenICode$ICodePhase.run(GenICode.scala:55)
+	at scala.tools.nsc.Global$Run.compileUnitsInternal(Global.scala:1625)
+	at scala.tools.nsc.Global$Run.compileUnits(Global.scala:1610)
+	at scala.tools.nsc.Global$Run.compileSources(Global.scala:1605)
+	at scala.tools.nsc.Global$Run.compile(Global.scala:1703)
+	at xsbt.CachedCompiler0.run(CompilerInterface.scala:123)
+	at xsbt.CachedCompiler0.run(CompilerInterface.scala:99)
+	at xsbt.CompilerInterface.run(CompilerInterface.scala:27)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at sbt.compiler.AnalyzingCompiler.call(AnalyzingCompiler.scala:102)
+	at sbt.compiler.AnalyzingCompiler.compile(AnalyzingCompiler.scala:48)
+	at sbt.compiler.AnalyzingCompiler.compile(AnalyzingCompiler.scala:41)
+	at sbt.compiler.AggressiveCompile$$anonfun$3$$anonfun$compileScala$1$1.apply$mcV$sp(AggressiveCompile.scala:98)
+	at sbt.compiler.AggressiveCompile$$anonfun$3$$anonfun$compileScala$1$1.apply(AggressiveCompile.scala:98)
+	at sbt.compiler.AggressiveCompile$$anonfun$3$$anonfun$compileScala$1$1.apply(AggressiveCompile.scala:98)
+	at sbt.compiler.AggressiveCompile.sbt$compiler$AggressiveCompile$$timed(AggressiveCompile.scala:159)
+	at sbt.compiler.AggressiveCompile$$anonfun$3.compileScala$1(AggressiveCompile.scala:97)
+	at sbt.compiler.AggressiveCompile$$anonfun$3.apply(AggressiveCompile.scala:142)
+	at sbt.compiler.AggressiveCompile$$anonfun$3.apply(AggressiveCompile.scala:86)
+	at sbt.inc.IncrementalCompile$$anonfun$doCompile$1.apply(Compile.scala:38)
+	at sbt.inc.IncrementalCompile$$anonfun$doCompile$1.apply(Compile.scala:36)
+	at sbt.inc.Incremental$.cycle(Incremental.scala:73)
+	at sbt.inc.Incremental$$anonfun$1.apply(Incremental.scala:33)
+	at sbt.inc.Incremental$$anonfun$1.apply(Incremental.scala:32)
+	at sbt.inc.Incremental$.manageClassfiles(Incremental.scala:41)
+	at sbt.inc.Incremental$.compile(Incremental.scala:32)
+	at sbt.inc.IncrementalCompile$.apply(Compile.scala:26)
+	at sbt.compiler.AggressiveCompile.compile2(AggressiveCompile.scala:150)
+	at sbt.compiler.AggressiveCompile.compile1(AggressiveCompile.scala:70)
+	at sbt.compiler.AggressiveCompile.apply(AggressiveCompile.scala:45)
+	at sbt.Compiler$.apply(Compiler.scala:70)
+	at sbt.Defaults$.sbt$Defaults$$compileTaskImpl(Defaults.scala:736)
+	at sbt.Defaults$$anonfun$compileTask$1.apply(Defaults.scala:730)
+	at sbt.Defaults$$anonfun$compileTask$1.apply(Defaults.scala:730)
+	at scala.Function1$$anonfun$compose$1.apply(Function1.scala:47)
+	at sbt.$tilde$greater$$anonfun$$u2219$1.apply(TypeFunctions.scala:42)
+	at sbt.std.Transform$$anon$4.work(System.scala:64)
+	at sbt.Execute$$anonfun$submit$1$$anonfun$apply$1.apply(Execute.scala:237)
+	at sbt.Execute$$anonfun$submit$1$$anonfun$apply$1.apply(Execute.scala:237)
+	at sbt.ErrorHandling$.wideConvert(ErrorHandling.scala:18)
+	at sbt.Execute.work(Execute.scala:244)
+	at sbt.Execute$$anonfun$submit$1.apply(Execute.scala:237)
+	at sbt.Execute$$anonfun$submit$1.apply(Execute.scala:237)
+	at sbt.ConcurrentRestrictions$$anon$4$$anonfun$1.apply(ConcurrentRestrictions.scala:160)
+	at sbt.CompletionService$$anon$2.call(CompletionService.scala:30)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:744)
+[error] (compile:compile) scala.reflect.internal.FatalError: Unknown type: <error>, <error> [class scala.reflect.internal.Types$ErrorType$, class scala.reflect.internal.Types$ErrorType$] TypeRef? false
+[error] Total time: 19 s, completed 25-Jun-2014 17:37:33
